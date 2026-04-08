@@ -13,9 +13,14 @@ import com.example.smartcanteenapp.viewmodel.AdminViewModel
 import com.example.smartcanteenapp.ui.admin.components.ItemCard
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavHostController
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 
 @Composable
-fun ManageItemsScreen() {
+fun ManageItemsScreen(navController: NavHostController) {
 
     val viewModel: AdminViewModel = viewModel()
     val items = viewModel.itemList
@@ -28,16 +33,43 @@ fun ManageItemsScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF6D4C41))
-
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF5D4037),
+                        Color(0xFF3E2723)
+                    )
+                )
+            )
             .padding(16.dp)
     ) {
 
+        // 🔙 BACK BUTTON (TOP)
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 8.dp)
+        ) {
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White
+                )
+            }
+        }
+
+        // 🧾 TITLE BELOW
         Text(
             text = "Manage Items",
             color = Color.White,
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 10.dp)
         )
 
         Spacer(modifier = Modifier.height(6.dp))
@@ -48,10 +80,10 @@ fun ManageItemsScreen() {
             fontSize = 14.sp
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
         Divider(
-            color = Color(0x33FFFFFF),
+            color = Color(0x22FFFFFF),
             thickness = 1.dp
         )
 
@@ -74,8 +106,8 @@ fun ManageItemsScreen() {
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 80.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                contentPadding = PaddingValues(top = 8.dp, bottom = 100.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
                 items(items) { item ->
