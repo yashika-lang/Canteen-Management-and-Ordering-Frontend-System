@@ -58,15 +58,15 @@ fun AppNavigation() {
             AdminScreen(navController)
         }
         composable(Routes.ADD_ITEM) {
-            AddItemScreen()
+            AddItemScreen(navController)
         }
 
         composable(Routes.MANAGE_ITEMS) {
-            ManageItemsScreen()
+            ManageItemsScreen(navController)
         }
 
         composable(Routes.ORDERS) {
-            OrdersScreen()
+            OrdersScreen(navController)
         }
 
         composable(Routes.CART) {
