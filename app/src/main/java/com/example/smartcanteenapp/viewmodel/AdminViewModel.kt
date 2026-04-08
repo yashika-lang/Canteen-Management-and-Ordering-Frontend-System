@@ -130,8 +130,10 @@ class AdminViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.api.getOrders()
                 if (response.isSuccessful) {
+                    val data = response.body() ?: emptyList()
                     orderList.clear()
-                    orderList.addAll(response.body() ?: emptyList())
+                    orderList.addAll(data)
+                    println("ORDERS FETCHED: ${data.size}")
                 } else {
                     println("Fetch Orders Failed: ${response.code()}")
                 }
@@ -149,7 +151,9 @@ class AdminViewModel : ViewModel() {
             try {
                 val response = RetrofitInstance.api.getAdminStats()
                 if (response.isSuccessful) {
-                    stats = response.body() ?: emptyMap()
+                    val data = response.body() ?: emptyMap()
+                    stats = data
+                    println("STATS: $data")
                 }
             } catch (e: Exception) {
                 println("Stats error: ${e.message}")
@@ -158,13 +162,18 @@ class AdminViewModel : ViewModel() {
     }
 
     // 🔄 UPDATE ORDER STATUS (LOCAL + later backend)
-    fun updateOrderStatus(id: Long, status: String) {
+    fun updateOrderStatus(order: Order, status: String) {
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.updateOrderStatus(
-                    id,
-                    mapOf("status" to status)
+                val orderId = order.id?.toLong() ?: return@launch
+                val userId = order.userId?.toString() ?: "1"
+
+                val body = mapOf(
+                    "status" to status,
+                    "userId" to userId
                 )
+
+                val response = RetrofitInstance.api.updateOrderStatus(orderId, body)
 
                 if (response.isSuccessful) {
                     fetchOrders()
