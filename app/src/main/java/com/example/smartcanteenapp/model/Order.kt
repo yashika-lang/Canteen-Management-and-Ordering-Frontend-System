@@ -1,12 +1,13 @@
 package com.example.smartcanteenapp.model
 
 data class Order(
-
-val id: Long?,
-val userId: Long?,
-val menuItemId: String?,   // 👈 ADD THIS
-val quantity: Int,
-val status: String,        // 👈 THIS is your orderStatus
-val tokenNumber: Int,
-val totalPrice: Int
+val id: Int?,
+val menuItemId: Int?,
+val menuItemName: String?,
+val quantity: Int?,
+val status: String?,
+val tokenNumber: Int?,
+val totalPrice: Int?,
+val userId: Int?,
+val createdAt: String?
 )
