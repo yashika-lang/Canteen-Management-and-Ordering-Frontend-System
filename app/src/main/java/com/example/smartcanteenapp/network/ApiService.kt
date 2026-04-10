@@ -2,6 +2,7 @@ package com.example.smartcanteenapp.network
 
 import com.example.smartcanteenapp.model.Item
 import com.example.smartcanteenapp.model.Order
+import com.example.smartcanteenapp.dto.AddItemRequest
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -11,7 +12,7 @@ interface ApiService {
     suspend fun getItems(): Response<List<Item>>
 
     @POST("api/menu")
-    suspend fun addItem(@Body item: Item): Response<Item>
+    suspend fun addItem(@Body item: AddItemRequest): Response<Item>
 
     @DELETE("api/menu/{id}")
     suspend fun deleteItem(@Path("id") id: Long): Response<Unit>

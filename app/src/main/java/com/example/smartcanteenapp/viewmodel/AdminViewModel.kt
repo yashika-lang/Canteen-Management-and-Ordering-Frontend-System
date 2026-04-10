@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.example.smartcanteenapp.dto.AddItemRequest
 import kotlinx.coroutines.launch
 import com.example.smartcanteenapp.model.Item
 import com.example.smartcanteenapp.model.Order
@@ -16,8 +17,12 @@ class AdminViewModel : ViewModel() {
     // 🔥 ITEMS LIST
     var itemList = mutableStateListOf<Item>()
         private set
-    var items by mutableStateOf<List<Item>>(emptyList())
+    var selectedItem by mutableStateOf<Item?>(null)
         private set
+
+    fun selectItem(id: Long) {
+        selectedItem = itemList.find { it.id == id }
+    }
 
     // 📦 FETCH ITEMS
     fun fetchItems() {
@@ -28,7 +33,6 @@ class AdminViewModel : ViewModel() {
                     val data = response.body() ?: emptyList()
                     itemList.clear()
                     itemList.addAll(data)
-                    items = data
                 } else {
                     println("Fetch Items Failed: ${response.code()}")
                 }
@@ -48,8 +52,7 @@ class AdminViewModel : ViewModel() {
     ) {
         viewModelScope.launch {
             try {
-                val newItem = Item(
-                    id = null, // backend generate karega
+                val newItem = AddItemRequest(// backend generate karega
                     name = name,
                     price = price,
                     category = category,
@@ -79,7 +82,6 @@ class AdminViewModel : ViewModel() {
                     val response = RetrofitInstance.api.deleteItem(it.toLong())
                     if (response.isSuccessful) {
                         itemList.removeAll { i -> i.id == item.id }
-                        items = itemList.toList()
                     }
                 } ?: println("Item ID is null")
             } catch (e: Exception) {
@@ -101,14 +103,10 @@ class AdminViewModel : ViewModel() {
 
                     if (response.isSuccessful) {
                         // Optimistic UI update + refresh
-                        val updatedList = itemList.map {
-                            if (it.id == item.id) it.copy(available = newValue) else it
+                        val index = itemList.indexOfFirst { it.id == item.id }
+                        if (index != -1) {
+                            itemList[index] = itemList[index].copy(available = newValue)
                         }
-                        itemList.clear()
-                        itemList.addAll(updatedList)
-                        items = updatedList
-
-                        fetchItems()
                     } else {
                         println("Toggle Failed: ${response.code()}")
                     }
@@ -160,6 +158,7 @@ class AdminViewModel : ViewModel() {
             }
         }
     }
+
 
     // 🔄 UPDATE ORDER STATUS (LOCAL + later backend)
     fun updateOrderStatus(order: Order, status: String) {

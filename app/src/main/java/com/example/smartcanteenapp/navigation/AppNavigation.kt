@@ -1,8 +1,14 @@
 package com.example.smartcanteenapp.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import androidx.navigation.navArgument
 import com.example.smartcanteenapp.ui.auth.LoginScreen
 import com.example.smartcanteenapp.ui.auth.RegisterScreen
 import com.example.smartcanteenapp.ui.screens.SplashScreen
@@ -11,6 +17,8 @@ import com.example.smartcanteenapp.ui.admin.AdminScreen
 import com.example.smartcanteenapp.ui.admin.AddItemScreen
 import com.example.smartcanteenapp.ui.admin.ManageItemsScreen
 import com.example.smartcanteenapp.ui.admin.OrdersScreen
+import com.example.smartcanteenapp.ui.user.DetailsScreen
+import com.example.smartcanteenapp.viewmodel.AdminViewModel
 
 // ✅ ROUTES OBJECT
 object Routes {
@@ -32,6 +40,7 @@ object Routes {
 fun AppNavigation() {
 
     val navController = rememberNavController()
+    val viewModel: AdminViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -49,9 +58,9 @@ fun AppNavigation() {
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
         }
+            composable(Routes.HOME) {
+                HomeScreen(navController, viewModel)
 
-        composable(Routes.HOME) {
-            HomeScreen(navController)
         }
 
         composable(Routes.ADMIN) {
@@ -61,12 +70,21 @@ fun AppNavigation() {
             AddItemScreen(navController)
         }
 
-        composable(Routes.MANAGE_ITEMS) {
+        composable(Routes.MANAGE_ITEMS)
+        {
             ManageItemsScreen(navController)
         }
 
         composable(Routes.ORDERS) {
             OrdersScreen(navController)
+        }
+
+        composable(
+            route = "details/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            val id = it.arguments?.getInt("id") ?: 0
+            DetailsScreen(navController, id)
         }
 
         composable(Routes.CART) {

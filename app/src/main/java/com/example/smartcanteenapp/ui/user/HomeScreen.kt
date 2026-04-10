@@ -1,5 +1,8 @@
 package com.example.smartcanteenapp.ui.user
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.smartcanteenapp.viewmodel.AdminViewModel
+
 import android.content.Context
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.*
@@ -20,28 +23,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavHostController
+import com.example.smartcanteenapp.model.Item
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import java.net.URL
 
-data class FoodItem(
-    val id: Int,
-    val name: String,
-    val price: Int,
-    val image: String,
-    val category: String
-)
-
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, viewModel: AdminViewModel){
 
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("USER", Context.MODE_PRIVATE)
     val userName = sharedPref.getString("name", "User")
 
-    var foodList by remember { mutableStateOf(listOf<FoodItem>()) }
+    var foodList by remember { mutableStateOf(listOf<Item>()) }
     var selectedCategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
+
 
     // 🔥 API CALL
     LaunchedEffect(true) {
@@ -50,18 +47,20 @@ fun HomeScreen(navController: NavHostController) {
                 val response = URL("http://192.168.1.40:8080/api/menu").readText()
                 val json = JSONArray(response)
 
-                val list = mutableListOf<FoodItem>()
+                val list = mutableListOf<Item>()
 
                 for (i in 0 until json.length()) {
                     val obj = json.getJSONObject(i)
 
                     list.add(
-                        FoodItem(
-                            obj.getInt("id"),
-                            obj.getString("name"),
-                            obj.getInt("price"),
-                            obj.getString("imageUrl"),
-                            obj.optString("category", "Snacks")
+                        Item(
+                            id = obj.getLong("id"),
+                            name = obj.getString("name"),
+                            price = obj.getDouble("price"),
+                            category = obj.optString("category", ""),
+                            description = obj.optString("description", ""),
+                            imageUrl = obj.getString("imageUrl"),
+                            available = true
                         )
                     )
                 }
@@ -136,7 +135,7 @@ fun HomeScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // 🔥 CATEGORIES
-                val categories = listOf("All", "Snacks", "Beverages", "IceCream", "Breakfast")
+                val categories = listOf("All", "Snacks", "Beverages", "Ice Cream", "Breakfast")
 
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -171,8 +170,11 @@ fun HomeScreen(navController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(filteredList.size) { index ->
-                    FoodCard(filteredList[index], navController)
+                items(
+                    items = filteredList,
+                    key = { it.id }
+                ) { item ->
+                    FoodCard(item, navController, viewModel)
                 }
             }
         }
@@ -180,14 +182,14 @@ fun HomeScreen(navController: NavHostController) {
 }
 
 @Composable
-fun FoodCard(item: FoodItem, navController: NavHostController) {
+fun FoodCard(item: Item, navController: NavHostController, viewModel: AdminViewModel) {
 
-    var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    var bitmap by remember(item.imageUrl) { mutableStateOf<ImageBitmap?>(null) }
 
-    LaunchedEffect(item.image) {
+    LaunchedEffect(item.imageUrl) {
         withContext(Dispatchers.IO) {
             try {
-                val stream = URL(item.image).openStream()
+                val stream = URL(item.imageUrl).openStream()
                 val bmp = BitmapFactory.decodeStream(stream)
 
                 withContext(Dispatchers.Main) {
@@ -200,7 +202,9 @@ fun FoodCard(item: FoodItem, navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .aspectRatio(0.8f)
             .clickable {
+                viewModel.selectItem(item.id)
                 navController.navigate("details/${item.id}")
             },
         shape = RoundedCornerShape(20.dp),
@@ -209,16 +213,21 @@ fun FoodCard(item: FoodItem, navController: NavHostController) {
 
         Column(modifier = Modifier.padding(12.dp)) {
 
-            bitmap?.let {
-                Image(
-                    bitmap = it,
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(110.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(110.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.DarkGray)
+            ) {
+                bitmap?.let {
+                    Image(
+                        bitmap = it,
+                        contentDescription = "",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
