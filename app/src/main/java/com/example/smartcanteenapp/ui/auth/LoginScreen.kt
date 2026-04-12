@@ -14,15 +14,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import com.example.smartcanteenapp.viewmodel.AdminViewModel
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    navController: NavHostController,
+    viewModel: AdminViewModel
+){
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -124,10 +127,35 @@ fun LoginScreen(navController: NavHostController) {
                             Log.d("LOGIN_RESPONSE", response)
 
                             val jsonObj = JSONObject(response)
+
+                            // 🔥 DEBUG FULL RESPONSE
+                            Log.d("LOGIN_JSON", jsonObj.toString())
+
                             val name = jsonObj.optString("name", "User")
                             val role = jsonObj.optString("role", "USER")
 
+                            // 🔥 SAFE USER ID EXTRACTION
+                            val userId = if (jsonObj.has("id")) {
+                                jsonObj.getLong("id")
+                            } else if (jsonObj.has("userId")) {
+                                jsonObj.getLong("userId")
+                            } else {
+                                0L
+                            }
+
+                            // 🔥 DEBUG USER ID
+                            Log.d("USER_ID_DEBUG", "UserId = $userId")
+
+                            // ❌ STOP if invalid userId
+                            if (userId == 0L) {
+                                withContext(Dispatchers.Main) {
+                                    error = "User ID not received from backend ❌"
+                                }
+                                return@launch
+                            }
+
                             sharedPref.edit().putString("name", name).apply()
+                            viewModel.currentUserId = userId
 
                             withContext(Dispatchers.Main) {
 

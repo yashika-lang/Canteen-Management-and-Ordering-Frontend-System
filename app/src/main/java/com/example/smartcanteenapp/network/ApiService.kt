@@ -3,6 +3,7 @@ package com.example.smartcanteenapp.network
 import com.example.smartcanteenapp.model.Item
 import com.example.smartcanteenapp.model.Order
 import com.example.smartcanteenapp.dto.AddItemRequest
+import com.example.smartcanteenapp.dto.CreateOrderRequest
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -27,7 +28,7 @@ interface ApiService {
     suspend fun getOrders(): Response<List<Order>>
 
     @POST("api/order")
-    suspend fun createOrder(@Body request: Map<String, Any>): Response<Order>
+    suspend fun createOrder(@Body request: CreateOrderRequest): Response<Order>
 
     @PATCH("api/order/{id}/status")
     suspend fun updateOrderStatus(
@@ -43,4 +44,8 @@ interface ApiService {
         @Path("id") id: Long,
         @Query("available") available: Boolean
     ): Response<Unit>
+    @GET("api/order/user/{userId}")
+    suspend fun getUserOrders(
+        @Path("userId") userId: Long
+    ): Response<List<Order>>
 }

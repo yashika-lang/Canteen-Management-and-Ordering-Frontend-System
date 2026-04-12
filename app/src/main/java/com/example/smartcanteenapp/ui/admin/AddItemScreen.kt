@@ -19,13 +19,16 @@ import androidx.compose.ui.Alignment
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.DropdownMenuItem
+import androidx.navigation.NavHostController
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddItemScreen(navController: androidx.navigation.NavHostController) {
+fun AddItemScreen(
+    navController: NavHostController,
+    viewModel: AdminViewModel
+) {
 
-    val viewModel: AdminViewModel = viewModel()
     val context = LocalContext.current
 
     var name by remember { mutableStateOf("") }

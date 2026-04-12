@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.smartcanteenapp.model.Order
-
+/*
 @Composable
 fun OrderCard(
     order: Order,
@@ -61,18 +61,32 @@ fun OrderCard(
 
             Spacer(modifier = Modifier.height(6.dp))
 
-            Text(
-                text = "Item: ${order.menuItemName ?: "Unknown"}",
-                color = Color.White,
-                fontWeight = FontWeight.Medium
-            )
+            if (order.items.isNullOrEmpty()) {
+                Text(
+                    text = "No items",
+                    color = Color.Gray
+                )
+            } else {
+                order.items.forEach { item ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = item.menuItemName ?: "Item",
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Qty: ${order.quantity ?: 0}",
-                color = Color.White
-            )
+                        Text(
+                            text = "x${item.quantity ?: 0}",
+                            color = Color.LightGray
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(6.dp))
 
@@ -115,38 +129,43 @@ fun OrderCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 🔘 BUTTONS
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-
-                OutlinedButton(
-                    onClick = onPreparing,
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+            // 🔘 BUTTONS (SMART FLOW)
+            if (order.status != "COMPLETED") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = "Preparing",
-                        maxLines = 1
-                    )
-                }
 
-                OutlinedButton(
-                    onClick = onReady,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Ready")
-                }
+                    if (order.status == "PLACED") {
+                        OutlinedButton(
+                            onClick = onPreparing,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Preparing")
+                        }
+                    }
 
-                Button(
-                    onClick = onDone,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
-                ) {
-                    Text("Done")
+                    if (order.status == "PREPARING") {
+                        OutlinedButton(
+                            onClick = onReady,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Ready")
+                        }
+                    }
+
+                    if (order.status == "READY") {
+                        Button(
+                            onClick = onDone,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                        ) {
+                            Text("Done")
+                        }
+                    }
                 }
             }
         }
     }
 }
+*/

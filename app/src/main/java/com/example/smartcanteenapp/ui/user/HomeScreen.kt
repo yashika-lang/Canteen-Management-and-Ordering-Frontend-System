@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.smartcanteenapp.model.Item
 import kotlinx.coroutines.*
 import org.json.JSONArray
@@ -184,21 +185,6 @@ fun HomeScreen(navController: NavHostController, viewModel: AdminViewModel){
 @Composable
 fun FoodCard(item: Item, navController: NavHostController, viewModel: AdminViewModel) {
 
-    var bitmap by remember(item.imageUrl) { mutableStateOf<ImageBitmap?>(null) }
-
-    LaunchedEffect(item.imageUrl) {
-        withContext(Dispatchers.IO) {
-            try {
-                val stream = URL(item.imageUrl).openStream()
-                val bmp = BitmapFactory.decodeStream(stream)
-
-                withContext(Dispatchers.Main) {
-                    bitmap = bmp.asImageBitmap()
-                }
-            } catch (_: Exception) {}
-        }
-    }
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -220,14 +206,12 @@ fun FoodCard(item: Item, navController: NavHostController, viewModel: AdminViewM
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color.DarkGray)
             ) {
-                bitmap?.let {
-                    Image(
-                        bitmap = it,
-                        contentDescription = "",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                AsyncImage(
+                    model = item.imageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))

@@ -13,9 +13,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.smartcanteenapp.model.Item
+import com.example.smartcanteenapp.viewmodel.AdminViewModel
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import java.net.URL
@@ -23,7 +26,8 @@ import java.net.URL
 @Composable
 fun DetailsScreen(
     navController: NavHostController,
-    itemId: Int
+    itemId: Int,
+    viewModel: AdminViewModel
 ){
 
 
@@ -153,9 +157,18 @@ fun DetailsScreen(
                         .padding(16.dp)
                 ) {
 
-                    Text(food.name, color = Color.White, fontSize = 26.sp)
+                    Text(
+                        food.name,
+                        color = Color.White,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                    Text("₹ ${food.price}", color = Color(0xFFFF9800), fontSize = 20.sp)
+                    Text(
+                        "₹ ${food.price}",
+                        color = Color(0xFFFF9800),
+                        fontSize = 20.sp
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -168,37 +181,37 @@ fun DetailsScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(50))
                                 .background(Color.Black)
-                                .padding(horizontal = 16.dp, vertical = 6.dp)
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
-
                             Row(verticalAlignment = Alignment.CenterVertically) {
 
-                                Text(
-                                    "-",
-                                    color = Color.White,
+                                Box(
                                     modifier = Modifier
+                                        .background(Color(0xFFFF9800), RoundedCornerShape(50))
                                         .clickable { if (quantity > 1) quantity-- }
-                                        .padding(8.dp)
-                                )
+                                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                                ) {
+                                    Text("-", color = Color.Black)
+                                }
 
                                 Text(
                                     quantity.toString(),
                                     color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 8.dp)
+                                    modifier = Modifier.padding(horizontal = 12.dp)
                                 )
 
-                                Text(
-                                    "+",
-                                    color = Color.White,
+                                Box(
                                     modifier = Modifier
+                                        .background(Color(0xFFFF9800), RoundedCornerShape(50))
                                         .clickable { quantity++ }
-                                        .padding(8.dp)
-                                )
+                                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                                ) {
+                                    Text("+", color = Color.Black)
+                                }
                             }
                         }
                     }
@@ -215,14 +228,19 @@ fun DetailsScreen(
                     Spacer(modifier = Modifier.weight(1f))
 
                     Button(
-                        onClick = { },
+                        onClick = { viewModel.addToCart(food, quantity)
+                            navController.navigate("cart")},
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(55.dp),
                         shape = RoundedCornerShape(30.dp),
                         colors = ButtonDefaults.buttonColors(Color(0xFFFF9800))
                     ) {
-                        Text("ADD TO CART", color = Color.Black)
+                        Text(
+                            "Add to Cart",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }

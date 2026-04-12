@@ -17,7 +17,10 @@ import com.example.smartcanteenapp.ui.admin.AdminScreen
 import com.example.smartcanteenapp.ui.admin.AddItemScreen
 import com.example.smartcanteenapp.ui.admin.ManageItemsScreen
 import com.example.smartcanteenapp.ui.admin.OrdersScreen
+import com.example.smartcanteenapp.ui.user.CartScreen
 import com.example.smartcanteenapp.ui.user.DetailsScreen
+import com.example.smartcanteenapp.ui.user.SuccessScreen
+import com.example.smartcanteenapp.ui.user.UserOrdersScreen
 import com.example.smartcanteenapp.viewmodel.AdminViewModel
 
 // ✅ ROUTES OBJECT
@@ -33,7 +36,8 @@ object Routes {
     // ADMIN FEATURES
     const val ADD_ITEM = "add_item"
     const val MANAGE_ITEMS = "manage_items"
-    const val ORDERS = "orders"
+    const val ADMIN_ORDERS = "admin_orders"
+    const val USER_ORDERS = "user_orders"
 }
 
 @Composable
@@ -52,8 +56,9 @@ fun AppNavigation() {
         }
 
         composable(Routes.LOGIN) {
-            LoginScreen(navController)
+            LoginScreen(navController, viewModel)
         }
+
 
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
@@ -64,19 +69,19 @@ fun AppNavigation() {
         }
 
         composable(Routes.ADMIN) {
-            AdminScreen(navController)
+            AdminScreen(navController, viewModel)
         }
         composable(Routes.ADD_ITEM) {
-            AddItemScreen(navController)
+            AddItemScreen(navController,viewModel)
         }
 
         composable(Routes.MANAGE_ITEMS)
         {
-            ManageItemsScreen(navController)
+            ManageItemsScreen(navController,viewModel)
         }
 
-        composable(Routes.ORDERS) {
-            OrdersScreen(navController)
+        composable(Routes.ADMIN_ORDERS) {
+            OrdersScreen(navController, viewModel)
         }
 
         composable(
@@ -84,11 +89,17 @@ fun AppNavigation() {
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
             val id = it.arguments?.getInt("id") ?: 0
-            DetailsScreen(navController, id)
+            DetailsScreen(navController, id, viewModel)
         }
 
         composable(Routes.CART) {
-            Text("Cart Screen Coming Soon")
+            CartScreen(navController, viewModel)
+        }
+        composable("success") {
+            SuccessScreen(navController)
+        }
+        composable(Routes.USER_ORDERS) {
+            UserOrdersScreen(viewModel)
         }
 
         composable(Routes.PROFILE) {

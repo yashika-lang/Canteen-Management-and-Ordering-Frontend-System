@@ -20,9 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 
 @Composable
-fun ManageItemsScreen(navController: NavHostController) {
+fun ManageItemsScreen(
+    navController: NavHostController,
+    viewModel: AdminViewModel
+) {
 
-    val viewModel: AdminViewModel = viewModel()
     val items = viewModel.itemList
 
     // 🔥 MOST IMPORTANT LINE

@@ -29,14 +29,16 @@ import androidx.compose.ui.draw.shadow
 import com.example.smartcanteenapp.ui.admin.components.StatCard
 
 @Composable
-fun AdminScreen(navController: NavHostController) {
-
-    val viewModel: AdminViewModel = viewModel()
+fun AdminScreen(
+    navController: NavHostController,
+    viewModel: AdminViewModel
+) {
 
     // 🔥 API CALL (screen open hote hi)
     LaunchedEffect(Unit) {
         viewModel.fetchItems()
         viewModel.fetchStats()
+        viewModel.fetchOrders()
     }
 
     Column(
@@ -161,8 +163,9 @@ fun AdminScreen(navController: NavHostController) {
             }
 
             item {
-                AdminCard("🧾 Orders", "Track & update orders") {
-                    navController.navigate(Routes.ORDERS)
+                AdminCard("🧾 Orders", "Track & update orders")
+                {
+                    navController.navigate(Routes.ADMIN_ORDERS)
                 }
             }
 
