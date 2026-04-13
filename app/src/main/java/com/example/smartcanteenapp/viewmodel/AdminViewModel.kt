@@ -18,7 +18,7 @@ import kotlin.collections.emptyList
 
 class AdminViewModel : ViewModel() {
 
-    // 🔥 ITEMS LIST
+    //  ITEMS LIST
     var itemList = mutableStateListOf<Item>()
         private set
     var selectedItem by mutableStateOf<Item?>(null)
@@ -27,14 +27,14 @@ class AdminViewModel : ViewModel() {
 
     var allOrders = mutableStateListOf<Order>()
     var userOrders = mutableStateListOf<Order>()
-
+    var paymentSuccess by mutableStateOf(false)
 
     fun selectItem(id: Long) {
         selectedItem = itemList.find { it.id == id }
     }
 
 
-    // 📦 FETCH ITEMS
+    //  FETCH ITEMS
     fun fetchItems() {
         viewModelScope.launch {
             try {
@@ -51,12 +51,13 @@ class AdminViewModel : ViewModel() {
             }
         }
     }
+
     fun placeOrder() {
         viewModelScope.launch {
             try {
 
                 if (cartItems.isEmpty()) {
-                    println("❌ Cart is empty")
+                    println(" Cart is empty")
                     return@launch
                 }
 
@@ -74,25 +75,26 @@ class AdminViewModel : ViewModel() {
                     items = itemsList
                 )
 
-                println("🔥 Sending MULTI ITEM order: $request")
+                println(" Sending MULTI ITEM order: $request")
 
                 val response = RetrofitInstance.api.createOrder(request)
 
-                println("🔥 RESPONSE: ${response.code()}")
+                println(" RESPONSE: ${response.code()}")
 
                 if (response.isSuccessful) {
+                    fetchOrders()              //  admin update first
+                    fetchUserOrders(userId)    //  user update next
                     cartItems.clear()
-                    fetchUserOrders(userId)
-                    fetchOrders()
                 } else {
-                    println("❌ Failed to place order: ${response.code()}")
+                    println(" Failed to place order: ${response.code()}")
                 }
 
             } catch (e: Exception) {
-                println("❌ Error: ${e.message}")
+                println(" Error: ${e.message}")
             }
         }
     }
+
     fun fetchUserOrders(userId: Long) {
         viewModelScope.launch {
             try {
@@ -103,13 +105,13 @@ class AdminViewModel : ViewModel() {
                     userOrders.clear()
                     userOrders.addAll(data)
 
-                    println("🔥 USER ORDERS FETCHED: ${data.size}")
+                    println(" USER ORDERS FETCHED: ${data.size}")
                     data.forEach { println("👉 Order: $it") }
                 } else {
-                    println("❌ USER ORDERS API FAILED: ${response.code()}")
+                    println(" USER ORDERS API FAILED: ${response.code()}")
                 }
             } catch (e: Exception) {
-                println("❌ ERROR: ${e.message}")
+                println(" ERROR: ${e.message}")
             }
         }
     }
@@ -146,7 +148,7 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    // ❌ DELETE ITEM
+    //  DELETE ITEM
     fun deleteItem(item: Item) {
         viewModelScope.launch {
             try {
@@ -162,7 +164,7 @@ class AdminViewModel : ViewModel() {
         }
     }
 
-    // 🔄 TOGGLE AVAILABILITY
+    //  TOGGLE AVAILABILITY
     fun toggleAvailability(item: Item, newValue: Boolean) {
         println("🔥 Toggle clicked: ${item.id} -> $newValue")
 
@@ -228,6 +230,7 @@ class AdminViewModel : ViewModel() {
             }
         }
     }
+
     var cartItems = mutableStateListOf<CartItem>()
     fun addToCart(item: Item, quantity: Int) {
         val existing = cartItems.find { it.item.id == item.id }
@@ -244,29 +247,31 @@ class AdminViewModel : ViewModel() {
     }
 
 
-    // 🔄 UPDATE ORDER STATUS (LOCAL + later backend)
+    //  UPDATE ORDER STATUS (LOCAL + later backend)
     fun updateOrderStatus(order: Order, status: String) {
         viewModelScope.launch {
             try {
                 val orderId = order.id?.toLong() ?: return@launch
-                val userId = order.userId?.toString() ?: return@launch
 
                 val body = mapOf(
                     "status" to status,
-                    "userId" to userId
+                    "userId" to order.userId.toString()  // 👈 required by backend
                 )
 
                 val response = RetrofitInstance.api.updateOrderStatus(orderId, body)
 
                 if (response.isSuccessful) {
-                    fetchOrders()
-                    currentUserId?.let { fetchUserOrders(it) }
+                    println("🔥 STATUS UPDATED SUCCESS")
+
+                    fetchOrders() // admin refresh
+                    currentUserId?.let { fetchUserOrders(it) } // user refresh
+
                 } else {
-                    println("Update failed: ${response.code()}")
+                    println("❌ Update failed: ${response.code()}")
                 }
 
             } catch (e: Exception) {
-                println("Error: ${e.message}")
+                println("❌ Error: ${e.message}")
             }
         }
     }

@@ -15,16 +15,31 @@ import androidx.compose.ui.unit.sp
 import com.example.smartcanteenapp.viewmodel.AdminViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import com.example.smartcanteenapp.ui.admin.components.OrderCard
 
 @Composable
 fun OrdersScreen(navController: NavHostController, viewModel: AdminViewModel) {
 
-    val orders = viewModel.allOrders
+    val orders = viewModel.allOrders.toList()
+
+    var lastOrderCount by remember { mutableStateOf(0) }
 
     // 🔥 ONLY FETCH ONCE (NO LOOP)
     LaunchedEffect(Unit) {
         println("🔥 ADMIN SCREEN STARTED")
         viewModel.fetchOrders()
+    }
+
+    LaunchedEffect(orders.size) {
+        if (orders.size > lastOrderCount && lastOrderCount != 0) {
+            println("🔥 NEW ORDER RECEIVED!")
+
+            android.media.ToneGenerator(
+                android.media.AudioManager.STREAM_NOTIFICATION,
+                100
+            ).startTone(android.media.ToneGenerator.TONE_PROP_BEEP)
+        }
+        lastOrderCount = orders.size
     }
 
 
@@ -56,17 +71,65 @@ fun OrdersScreen(navController: NavHostController, viewModel: AdminViewModel) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Orders Dashboard",
-                fontSize = 24.sp,
-                color = Color.White
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Orders Dashboard",
+                    fontSize = 24.sp,
+                    color = Color.White
+                )
 
-            // 🔥 DEBUG COUNT
-            Text(
-                text = "Orders Count: ${orders.size}",
-                color = Color.Green
-            )
+                Text(
+                    text = "${orders.size} orders",
+                    color = Color.LightGray,
+                    fontSize = 14.sp
+                )
+
+                if (orders.any { it.status == "PLACED" }) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .background(Color.Red, RoundedCornerShape(50))
+                    )
+                }
+            }
+
+            // 🔥 LIVE STATUS COUNTERS
+            val readyCount = orders.count { (it.status ?: "").trim().uppercase() == "READY" }
+            val completedCount = orders.count { (it.status ?: "").trim().uppercase() == "COMPLETED" }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color(0x3329B6F6)
+                ) {
+                    Text(
+                        text = "Ready: $readyCount",
+                        color = Color(0xFF29B6F6),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color(0x334CAF50)
+                ) {
+                    Text(
+                        text = "Completed: $completedCount",
+                        color = Color(0xFF4CAF50),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -86,37 +149,23 @@ fun OrdersScreen(navController: NavHostController, viewModel: AdminViewModel) {
             ) {
                 items(orders) { order ->
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF1E1E1E)
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                    val context = androidx.compose.ui.platform.LocalContext.current
 
-                            Text(
-                                text = "Order #${order.id}",
-                                color = Color.White
-                            )
-
-                            Text(
-                                text = "User: ${order.userId}",
-                                color = Color.LightGray
-                            )
-
-                            Text(
-                                text = "Status: ${order.status}",
-                                color = Color.Gray
-                            )
-
-                            Text(
-                                text = "Total: ₹${order.totalPrice}",
-                                color = Color(0xFFFFA726)
-                            )
+                    OrderCard(
+                        order = order,
+                        onPreparing = {
+                            viewModel.updateOrderStatus(order, "PREPARING")
+                            android.widget.Toast.makeText(context, "Order set to Preparing", android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                        onReady = {
+                            viewModel.updateOrderStatus(order, "READY")
+                            android.widget.Toast.makeText(context, "Order marked Ready ✅", android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                        onDone = {
+                            viewModel.updateOrderStatus(order, "COMPLETED")
+                            android.widget.Toast.makeText(context, "Order Completed 🎉", android.widget.Toast.LENGTH_SHORT).show()
                         }
-                    }
+                    )
                 }
             }
         }

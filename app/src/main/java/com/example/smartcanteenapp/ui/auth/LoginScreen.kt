@@ -34,6 +34,7 @@ fun LoginScreen(
     val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("USER", Context.MODE_PRIVATE)
 
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -132,7 +133,7 @@ fun LoginScreen(
                             Log.d("LOGIN_JSON", jsonObj.toString())
 
                             val name = jsonObj.optString("name", "User")
-                            val role = jsonObj.optString("role", "USER")
+                            val role = jsonObj.optString("role", "USER").trim().uppercase()
 
                             // 🔥 SAFE USER ID EXTRACTION
                             val userId = if (jsonObj.has("id")) {
@@ -154,15 +155,24 @@ fun LoginScreen(
                                 return@launch
                             }
 
-                            sharedPref.edit().putString("name", name).apply()
+                            sharedPref.edit()
+                                .putString("name", name)
+                                .putLong("userId", userId)
+                                .putString("role", role)
+                                .apply()
+
+                            Log.d("ROLE_DEBUG", "Saved Role = $role")
                             viewModel.currentUserId = userId
 
                             withContext(Dispatchers.Main) {
-
                                 if (role == "ADMIN") {
-                                    navController.navigate("admin")
+                                    navController.navigate("admin") {
+                                        popUpTo("login") { inclusive = true }
+                                    }
                                 } else {
-                                    navController.navigate("home")
+                                    navController.navigate("home") {
+                                        popUpTo("login") { inclusive = true }
+                                    }
                                 }
                             }
 

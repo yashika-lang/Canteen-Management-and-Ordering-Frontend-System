@@ -34,7 +34,7 @@ fun AdminScreen(
     viewModel: AdminViewModel
 ) {
 
-    // 🔥 API CALL (screen open hote hi)
+    //  API CALL (screen open hote hi)
     LaunchedEffect(Unit) {
         viewModel.fetchItems()
         viewModel.fetchStats()
@@ -56,7 +56,7 @@ fun AdminScreen(
             )
     ) {
 
-        // 🔥 HEADER
+        //  HEADER
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -75,7 +75,7 @@ fun AdminScreen(
         ) {
             Column {
                 Text(
-                    text = "Hello, Admin 👋",
+                    text = "Hello, Admin ",
                     color = Color.White,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
@@ -90,18 +90,21 @@ fun AdminScreen(
                 )
             }
 
-            // 🔥 Profile Circle
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFFF9800)),
-                contentAlignment = Alignment.Center
+            val context = androidx.compose.ui.platform.LocalContext.current
+
+            TextButton(
+                onClick = {
+                    val sharedPref = context.getSharedPreferences("USER", android.content.Context.MODE_PRIVATE)
+                    sharedPref.edit().clear().apply()
+
+                    navController.navigate("login") {
+                        popUpTo(0)
+                    }
+                }
             ) {
                 Text(
-                    text = "A",
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
+                    text = "Logout",
+                    color = Color(0xFFFFA726)
                 )
             }
         }
@@ -201,7 +204,7 @@ fun AdminScreen(
             ) {
 
                 Text(
-                    text = "🔥 Today's Sales",
+                    text = " Today's Sales",
                     color = Color(0xFFFF9800),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold

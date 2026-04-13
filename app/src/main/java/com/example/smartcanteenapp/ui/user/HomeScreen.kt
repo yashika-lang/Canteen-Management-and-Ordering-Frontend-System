@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.*
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.smartcanteenapp.model.Item
+import com.example.smartcanteenapp.navigation.Routes
 import kotlinx.coroutines.*
 import org.json.JSONArray
 import java.net.URL
@@ -101,15 +102,35 @@ fun HomeScreen(navController: NavHostController, viewModel: AdminViewModel){
                     .fillMaxWidth()
                     .background(Color(0xFF5D4037))
                     .statusBarsPadding()
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                    .padding(top = 12.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
             ) {
 
-                Text(
-                    "Hello, $userName",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        text = "Hello, $userName",
+                        color = Color.White,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    TextButton(
+                        onClick = {
+                            val sharedPref = context.getSharedPreferences("USER", Context.MODE_PRIVATE)
+                            sharedPref.edit().clear().apply()
+
+                            navController.navigate("login") {
+                                popUpTo(0)
+                            }
+                        },
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                    }
+                }
 
                 Text(
                     "What do you want to eat today?",
@@ -136,7 +157,7 @@ fun HomeScreen(navController: NavHostController, viewModel: AdminViewModel){
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // 🔥 CATEGORIES
-                val categories = listOf("All", "Snacks", "Beverages", "Ice Cream", "Breakfast")
+                val categories = listOf("All", "Snacks", "Beverages", "IceCream", "Breakfast")
 
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -243,24 +264,38 @@ fun FoodCard(item: Item, navController: NavHostController, viewModel: AdminViewM
 @Composable
 fun BottomBar(navController: NavHostController) {
 
-    NavigationBar(containerColor = Color(0xFF5D4037)) {
+    NavigationBar(
+        containerColor = Color(0xFF5D4037)
+    ) {
 
         NavigationBarItem(
             selected = true,
             onClick = { navController.navigate("home") },
-            icon = { Icon(Icons.Default.Home, "") }
+            icon = { Icon(Icons.Default.Home, contentDescription = "") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
+                unselectedIconColor = Color.LightGray
+            )
         )
 
         NavigationBarItem(
             selected = false,
             onClick = { navController.navigate("cart") },
-            icon = { Icon(Icons.Default.ShoppingCart, "") }
+            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
+                unselectedIconColor = Color.LightGray
+            )
         )
 
         NavigationBarItem(
             selected = false,
-            onClick = { navController.navigate("profile") },
-            icon = { Icon(Icons.Default.Person, "") }
+            onClick = { navController.navigate(Routes.USER_ORDERS) },
+            icon = { Icon(Icons.Default.List, contentDescription = "") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
+                unselectedIconColor = Color.LightGray
+            )
         )
     }
 }

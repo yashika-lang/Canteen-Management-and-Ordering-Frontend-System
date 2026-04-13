@@ -9,7 +9,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.*
@@ -43,93 +45,144 @@ fun RegisterScreen(navController: NavHostController) {
     ) {
 
         Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 60.dp),
+            verticalArrangement = Arrangement.Top
         ) {
 
             Text(
                 "Create Account",
                 color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = { Text("Name") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp)
-            )
-
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                placeholder = { Text("Email") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = { Text("Password") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp)
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-
-                    scope.launch(Dispatchers.IO) {
-                        try {
-                            val url = URL("http://192.168.1.40:8080/api/auth/register")
-                            val conn = url.openConnection() as HttpURLConnection
-
-                            conn.requestMethod = "POST"
-                            conn.doOutput = true
-                            conn.setRequestProperty("Content-Type", "application/json")
-
-                            val json = """{"name":"$name","email":"$email","password":"$password"}"""
-
-                            OutputStreamWriter(conn.outputStream).use {
-                                it.write(json)
-                            }
-
-                            val response = conn.inputStream.bufferedReader().readText()
-                            Log.d("REGISTER_RESPONSE", response)
-
-                            withContext(Dispatchers.Main) {
-                                message = "Registered Successfully"
-                            }
-
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                message = "Error registering"
-                            }
-                        }
-                    }
-
-                },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(55.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF9800)
-                )
+                    .background(
+                        Color(0xFF2E1F1A),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .padding(16.dp)
             ) {
-                Text("Register", color = Color.Black)
+                Column {
+
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        placeholder = { Text("Name", color = Color.LightGray) },
+                        textStyle = LocalTextStyle.current.copy(color = Color.White),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFF9800),
+                            unfocusedBorderColor = Color.Gray,
+                            cursorColor = Color.White,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        placeholder = { Text("Email", color = Color.LightGray) },
+                        textStyle = LocalTextStyle.current.copy(color = Color.White),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFF9800),
+                            unfocusedBorderColor = Color.Gray,
+                            cursorColor = Color.White,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        placeholder = { Text("Password", color = Color.LightGray) },
+                        textStyle = LocalTextStyle.current.copy(color = Color.White),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFFFF9800),
+                            unfocusedBorderColor = Color.Gray,
+                            cursorColor = Color.White,
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = {
+
+                            scope.launch(Dispatchers.IO) {
+                                try {
+                                    val url = URL("http://192.168.1.40:8080/api/auth/register")
+                                    val conn = url.openConnection() as HttpURLConnection
+
+                                    conn.requestMethod = "POST"
+                                    conn.doOutput = true
+                                    conn.setRequestProperty("Content-Type", "application/json")
+
+                                    val json = """{"name":"$name","email":"$email","password":"$password"}"""
+
+                                    OutputStreamWriter(conn.outputStream).use {
+                                        it.write(json)
+                                    }
+
+                                    val response = conn.inputStream.bufferedReader().readText()
+                                    Log.d("REGISTER_RESPONSE", response)
+
+                                    withContext(Dispatchers.Main) {
+                                        message = "Registered Successfully"
+                                    }
+
+                                } catch (e: Exception) {
+                                    withContext(Dispatchers.Main) {
+                                        message = "Error registering"
+                                    }
+                                }
+                            }
+
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(55.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800)
+                        )
+                    ) {
+                        Text(
+                            "Register",
+                            color = Color(0xFF3E2723),
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(message, color = Color.White)
+                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(message, color = Color.White)
         }
     }
 }

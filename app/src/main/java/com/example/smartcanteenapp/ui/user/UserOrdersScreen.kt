@@ -40,13 +40,20 @@ fun UserOrdersScreen(viewModel: AdminViewModel){
             .padding(16.dp)
     ) {
 
-        Text(
-            text = "My Orders",
-            style = MaterialTheme.typography.headlineSmall,
-            color = Color.White
-        )
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp, bottom = 12.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = "My Orders",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White
+            )
+        }
 
         if (orders.isEmpty()) {
             Box(
@@ -56,107 +63,115 @@ fun UserOrdersScreen(viewModel: AdminViewModel){
                 Text("No orders yet", color = Color.White)
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Color(0xFF2E1F1A),
+                        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                    )
+                    .padding(12.dp)
             ) {
-                items(orders) { order ->
+                LazyColumn {
+                    items(orders) { order ->
 
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-                        elevation = CardDefaults.cardElevation(8.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 10.dp)
-                    ) {
+                        Card(
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF2A2A2A)),
+                            elevation = CardDefaults.cardElevation(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                        ) {
 
-                        Column(modifier = Modifier.padding(16.dp)) {
+                            Column(modifier = Modifier.padding(16.dp)) {
 
-                            // 🔥 HEADER
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
+                                // 🔥 HEADER
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Token #${order.tokenNumber ?: 0}",
+                                        color = Color(0xFFFFA726),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    val status = order.status?.trim()?.uppercase() ?: "UNKNOWN"
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                when (status) {
+                                                    "PLACED" -> Color(0xFFFFA726)
+                                                    "PREPARING" -> Color(0xFF29B6F6)
+                                                    "READY" -> Color(0xFF66BB6A)
+                                                    "COMPLETED" -> Color.Gray
+                                                    else -> Color.DarkGray
+                                                },
+                                                RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = status ,
+                                            color = Color.Black,
+                                            style = MaterialTheme.typography.labelMedium
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Divider(color = Color.DarkGray)
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                // 🔥 MULTI ITEMS SUPPORT
+                                if (order.items.isNullOrEmpty()) {
+                                    Text(
+                                        text = "No items",
+                                        color = Color.Gray
+                                    )
+                                } else {
+                                    order.items.forEach { item ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 4.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = item.menuItemName ?: "Item",
+                                                color = Color.White
+                                            )
+
+                                            Text(
+                                                text = "x${item.quantity ?: 0}",
+                                                color = Color.LightGray
+                                            )
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                // 💰 TOTAL
                                 Text(
-                                    text = "Token #${order.tokenNumber ?: 0}",
+                                    text = "₹ ${order.totalPrice ?: 0}",
                                     color = Color(0xFFFFA726),
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
-                                Box(
-                                    modifier = Modifier
-                                        .background(
-                                            when (order.status ?: "") {
-                                                "PLACED" -> Color(0xFFFFA726)
-                                                "PREPARING" -> Color(0xFF29B6F6)
-                                                "READY" -> Color(0xFF66BB6A)
-                                                "COMPLETED" -> Color.Gray
-                                                else -> Color.DarkGray
-                                            },
-                                            RoundedCornerShape(12.dp)
-                                        )
-                                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                                ) {
-                                    Text(
-                                        text = order.status ?: "UNKNOWN",
-                                        color = Color.Black,
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                }
-                            }
+                                Spacer(modifier = Modifier.height(6.dp))
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                                val formattedTime = order.createdAt
+                                    ?.takeIf { it.length >= 16 }
+                                    ?.substring(11, 16) ?: "--:--"
 
-                            Divider(color = Color.DarkGray)
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // 🔥 MULTI ITEMS SUPPORT
-                            if (order.items.isNullOrEmpty()) {
                                 Text(
-                                    text = "No items",
-                                    color = Color.Gray
+                                    text = "🕒 $formattedTime",
+                                    color = Color.Gray,
+                                    style = MaterialTheme.typography.bodySmall
                                 )
-                            } else {
-                                order.items.forEach { item ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = item.menuItemName ?: "Item",
-                                            color = Color.White
-                                        )
-
-                                        Text(
-                                            text = "x${item.quantity ?: 0}",
-                                            color = Color.LightGray
-                                        )
-                                    }
-                                }
                             }
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // 💰 TOTAL
-                            Text(
-                                text = "₹ ${order.totalPrice ?: 0}",
-                                color = Color(0xFFFFA726),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            val formattedTime = order.createdAt
-                                ?.takeIf { it.length >= 16 }
-                                ?.substring(11, 16) ?: "--:--"
-
-                            Text(
-                                text = "🕒 $formattedTime",
-                                color = Color.Gray,
-                                style = MaterialTheme.typography.bodySmall
-                            )
                         }
                     }
                 }
